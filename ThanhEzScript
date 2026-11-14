@@ -1,5 +1,5 @@
 -- ==========================================================
--- THANH EZ HUB - EXACT REDZ HUB UI CLONE (MOBILE & CONFIG READY)
+-- THANH EZ HUB - ULTIMATE PRO ELITE EDITION (MOBILE READY)
 -- ==========================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -8,11 +8,14 @@ local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
--- 1. CONFIG SYSTEM (Auto Save/Load Toggles & UI Size)
-local ConfigFileName = "ThanhEzHub_RedzConfig.json"
+-- 1. CONFIG SYSTEM (Auto Save/Load Toggles & Sliders)
+local ConfigFileName = "ThanhEzHub_EliteConfig.json"
 local ConfigData = {
     Toggles = {},
-    UISize = "Normal"
+    Sliders = {
+        SpeedTween = 300,
+        DistanceFarm = 20
+    }
 }
 
 local function SaveConfig()
@@ -34,12 +37,12 @@ end
 LoadConfig()
 
 -- Remove old GUI if exists
-if CoreGui:FindFirstChild("ThanhEzRedzExactHub") then
-    CoreGui.ThanhEzRedzExactHub:Destroy()
+if CoreGui:FindFirstChild("ThanhEzEliteHub") then
+    CoreGui.ThanhEzEliteHub:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ThanhEzRedzExactHub"
+ScreenGui.Name = "ThanhEzEliteHub"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -73,20 +76,20 @@ task.spawn(function()
     IntroFrame:Destroy()
 end)
 
--- 3. FLOATING DRAGGABLE ICON (Cục vuông vuông thu nhỏ, kéo thả tự do)
+-- 3. FLOATING DRAGGABLE ICON 
 local ToggleIconButton = Instance.new("TextButton")
-ToggleIconButton.Size = UDim2.new(0, 42, 0, 42)
+ToggleIconButton.Size = UDim2.new(0, 45, 0, 45)
 ToggleIconButton.Position = UDim2.new(0, 30, 0, 180)
-ToggleIconButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleIconButton.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 ToggleIconButton.BorderSizePixel = 0
 ToggleIconButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleIconButton.TextSize = 12
+ToggleIconButton.TextSize = 13
 ToggleIconButton.Font = Enum.Font.GothamBold
 ToggleIconButton.Text = "TE"
 ToggleIconButton.Parent = ScreenGui
 
 local IconCorner = Instance.new("UICorner")
-IconCorner.CornerRadius = UDim.new(0, 8)
+IconCorner.CornerRadius = UDim.new(0, 10)
 IconCorner.Parent = ToggleIconButton
 
 local iconDragging, iconDragStart, iconStartPos
@@ -111,45 +114,44 @@ ToggleIconButton.InputEnded:Connect(function(input)
     end
 end)
 
--- 4. MAIN WINDOW (Redz Style Proportional Layout)
+-- 4. MAIN WINDOW (Elite Pro Layout)
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 520, 0, 310) -- Tỷ lệ chuẩn như Redz Hub
-MainFrame.Position = UDim2.new(0.5, -260, 0.5, -155)
+MainFrame.Size = UDim2.new(0, 550, 0, 330)
+MainFrame.Position = UDim2.new(0.5, -275, 0.5, -165)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 6)
+MainCorner.CornerRadius = UDim.new(0, 8)
 MainCorner.Parent = MainFrame
 
 -- Top Bar (Header & Drag Area)
 local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1, 0, 0, 32)
-TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+TopBar.Size = UDim2.new(1, 0, 0, 34)
+TopBar.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 TopBar.BorderSizePixel = 0
 TopBar.Parent = MainFrame
 
 local TopCorner = Instance.new("UICorner")
-TopCorner.CornerRadius = UDim.new(0, 6)
+TopCorner.CornerRadius = UDim.new(0, 8)
 TopCorner.Parent = TopBar
 
 local TopCover = Instance.new("Frame")
 TopCover.Size = UDim2.new(1, 0, 0, 6)
 TopCover.Position = UDim2.new(0, 0, 1, -6)
-TopCover.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+TopCover.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 TopCover.BorderSizePixel = 0
 TopCover.Parent = TopBar
 
--- Rainbow Title ("ThanhEz Hub : Blox Fruits")
+-- Rainbow Title
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0, 300, 1, 0)
 TitleLabel.Position = UDim2.new(0, 12, 0, 0)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.TextSize = 13
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "ThanhEz Hub : Blox Fruits"
+TitleLabel.Text = "ThanhEz Hub : Blox Kid"
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 TitleLabel.Parent = TopBar
 
@@ -160,11 +162,11 @@ task.spawn(function()
     end
 end)
 
--- Close Button [X] and Minimize [ - ] (Redz Style Header Buttons)
+-- Close Button [X]
 local CloseButton = Instance.new("TextButton")
 CloseButton.Size = UDim2.new(0, 26, 0, 26)
-CloseButton.Position = UDim2.new(1, -30, 0, 3)
-CloseButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+CloseButton.Position = UDim2.new(1, -32, 0, 4)
+CloseButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButton.TextSize = 11
 CloseButton.Font = Enum.Font.GothamBold
@@ -172,7 +174,7 @@ CloseButton.Text = "X"
 CloseButton.Parent = TopBar
 
 local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 4)
+CloseCorner.CornerRadius = UDim.new(0, 6)
 CloseCorner.Parent = CloseButton
 
 local isVisible = true
@@ -185,7 +187,7 @@ CloseButton.MouseButton1Click:Connect(ToggleMenu)
 ToggleIconButton.MouseButton1Click:Connect(ToggleMenu)
 
 -- Draggable Main Frame for Mobile
-local dragging, dragInput, dragStart, startPos
+local dragging, dragStart, startPos
 TopBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
@@ -207,11 +209,11 @@ TopBar.InputEnded:Connect(function(input)
     end
 end)
 
--- 5. SIDEBAR (Tabs Menu - Left Side)
+-- 5. SIDEBAR (Tabs Menu)
 local Sidebar = Instance.new("ScrollingFrame")
-Sidebar.Size = UDim2.new(0, 145, 1, -32)
-Sidebar.Position = UDim2.new(0, 0, 0, 32)
-Sidebar.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+Sidebar.Size = UDim2.new(0, 155, 1, -34)
+Sidebar.Position = UDim2.new(0, 0, 0, 34)
+Sidebar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
 Sidebar.BorderSizePixel = 0
 Sidebar.ScrollBarThickness = 2
 Sidebar.Parent = MainFrame
@@ -230,9 +232,9 @@ local TabButtons = {}
 
 local function CreateTab(name, order)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 30)
-    btn.Position = UDim2.new(0, 5, 0, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+    btn.Size = UDim2.new(1, -12, 0, 32)
+    btn.Position = UDim2.new(0, 6, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
     btn.TextColor3 = Color3.fromRGB(170, 170, 170)
     btn.TextSize = 11
     btn.Font = Enum.Font.GothamSemibold
@@ -242,12 +244,12 @@ local function CreateTab(name, order)
     btn.Parent = Sidebar
     
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 5)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = btn
 
     local page = Instance.new("ScrollingFrame")
-    page.Size = UDim2.new(1, -155, 1, -40)
-    page.Position = UDim2.new(0, 150, 0, 36)
+    page.Size = UDim2.new(1, -165, 1, -42)
+    page.Position = UDim2.new(0, 160, 0, 38)
     page.BackgroundTransparency = 1
     page.BorderSizePixel = 0
     page.ScrollBarThickness = 3
@@ -262,11 +264,11 @@ local function CreateTab(name, order)
     btn.MouseButton1Click:Connect(function()
         for _, p in pairs(Pages) do p.Visible = false end
         for _, b in pairs(TabButtons) do 
-            b.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+            b.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
             b.TextColor3 = Color3.fromRGB(170, 170, 170) 
         end
         page.Visible = true
-        btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        btn.BackgroundColor3 = Color3.fromRGB(114, 9, 183) -- Pro Purple Highlight
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     end)
 
@@ -275,29 +277,25 @@ local function CreateTab(name, order)
     return page
 end
 
--- Create Tabs matching Redz Hub Structure[span_4](start_span)[span_4](end_span)
+-- Create Full Tabs
 local HomeTab = CreateTab("Home / Settings", 1)
-local FarmTab = CreateTab("Farm", 2)
-local SeaTab = CreateTab("Sea", 3)
-local IslandsTab = CreateTab("Islands", 4)
-local QuestsTab = CreateTab("Quests / Items", 5)
-local FruitTab = CreateTab("Fruit / Raid", 6)
-local StatsTab = CreateTab("Stats", 7)
-local TeleportTab = CreateTab("Teleport", 8)
-local VisualTab = CreateTab("Visual", 9)
-local ShopTab = CreateTab("Shop", 10)
-local MiscTab = CreateTab("Misc", 11)
+local FarmTab = CreateTab("Setting Farm", 2)
+local SeaTab = CreateTab("Sea Events", 3)
+local QuestsTab = CreateTab("Quests & Items", 4)
+local TeleportTab = CreateTab("Teleport", 5)
+local StatsTab = CreateTab("Stats", 6)
+local MiscTab = CreateTab("Misc", 7)
 
 -- Default open Home tab
 Pages["Home / Settings"].Visible = true
-TabButtons["Home / Settings"].BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+TabButtons["Home / Settings"].BackgroundColor3 = Color3.fromRGB(114, 9, 183)
 TabButtons["Home / Settings"].TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- 6. HOME TAB: SETTINGS & UI SIZE CONTROLS
+-- 6. HOME TAB COMPONENTS
 local function CreateButtonInPage(page, title, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 34)
-    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+    btn.Size = UDim2.new(1, -10, 0, 36)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
     btn.TextColor3 = Color3.fromRGB(240, 240, 240)
     btn.TextSize = 11
     btn.Font = Enum.Font.GothamBold
@@ -305,7 +303,7 @@ local function CreateButtonInPage(page, title, callback)
     btn.Parent = page
     
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 5)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = btn
     
     btn.MouseButton1Click:Connect(function()
@@ -318,24 +316,12 @@ CreateButtonInPage(HomeTab, "Save Config Manually", function()
     print("[ThanhEz Hub]: Config saved successfully!")
 end)
 
-CreateButtonInPage(HomeTab, "UI Size: Compact (Small)", function()
-    MainFrame.Size = UDim2.new(0, 440, 0, 260)
-    ConfigData.UISize = "Small"
-    SaveConfig()
-end)
-
-CreateButtonInPage(HomeTab, "UI Size: Normal (Medium)", function()
-    MainFrame.Size = UDim2.new(0, 520, 0, 310)
-    ConfigData.UISize = "Normal"
-    SaveConfig()
-end)
-
--- 7. REDZ STYLE SECTION & TOGGLE BUILDER
+-- 7. UI BUILDERS (Section, Toggle with Subtext, Sliders)
 local function CreateSectionHeader(page, text)
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -10, 0, 24)
     label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(150, 150, 150)
+    label.TextColor3 = Color3.fromRGB(140, 140, 140)
     label.TextSize = 11
     label.Font = Enum.Font.GothamBold
     label.Text = text
@@ -343,33 +329,43 @@ local function CreateSectionHeader(page, text)
     label.Parent = page
 end
 
-local function CreateToggle(page, id, title, callback)
+local function CreateToggle(page, id, title, subtext, callback)
     local toggleFrame = Instance.new("Frame")
-    toggleFrame.Size = UDim2.new(1, -10, 0, 36)
-    toggleFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    toggleFrame.Size = UDim2.new(1, -10, 0, 44)
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
     toggleFrame.BorderSizePixel = 0
     toggleFrame.Parent = page
     
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 5)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = toggleFrame
     
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -60, 1, 0)
-    label.Position = UDim2.new(0, 12, 0, 0)
+    label.Size = UDim2.new(1, -60, 0, 20)
+    label.Position = UDim2.new(0, 12, 0, 4)
     label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(230, 230, 230)
+    label.TextColor3 = Color3.fromRGB(240, 240, 240)
     label.TextSize = 11
     label.Font = Enum.Font.GothamBold
     label.Text = title
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = toggleFrame
     
-    -- Redz Style Toggle Switch (Thanh gạt thuôn dài bên phải)
+    local subLabel = Instance.new("TextLabel")
+    subLabel.Size = UDim2.new(1, -60, 0, 16)
+    subLabel.Position = UDim2.new(0, 12, 0, 22)
+    subLabel.BackgroundTransparency = 1
+    subLabel.TextColor3 = Color3.fromRGB(130, 130, 130)
+    subLabel.TextSize = 10
+    subLabel.Font = Enum.Font.Gotham
+    subLabel.Text = subtext
+    subLabel.TextXAlignment = Enum.TextXAlignment.Left
+    subLabel.Parent = toggleFrame
+    
     local switchBtn = Instance.new("TextButton")
     switchBtn.Size = UDim2.new(0, 36, 0, 18)
     switchBtn.Position = UDim2.new(1, -44, 0.5, -9)
-    switchBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    switchBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     switchBtn.Text = ""
     switchBtn.Parent = toggleFrame
     
@@ -379,39 +375,128 @@ local function CreateToggle(page, id, title, callback)
     
     local currentState = ConfigData.Toggles[id] or false
     if currentState then
-        switchBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+        switchBtn.BackgroundColor3 = Color3.fromRGB(114, 9, 183)
     else
-        switchBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        switchBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     end
     
     switchBtn.MouseButton1Click:Connect(function()
         currentState = not currentState
         ConfigData.Toggles[id] = currentState
-        SaveConfig() -- Auto Save Config instantly
+        SaveConfig()
         
         if currentState then
-            switchBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+            switchBtn.BackgroundColor3 = Color3.fromRGB(114, 9, 183)
         else
-            switchBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            switchBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         end
         if callback then callback(currentState) end
     end)
 end
 
--- Populating Tabs with Redz Layout Structure
-CreateSectionHeader(FarmTab, "Main Leveling")
-CreateToggle(FarmTab, "AutoFarmLevel", "Auto Farm Level", function(val) print("Farm Level:", val) end)
-CreateToggle(FarmTab, "AutoQuest", "Auto Complete Quest", function(val) print("Quest:", val) end)
+local function CreateSlider(page, id, title, min, max, callback)
+    local sliderFrame = Instance.new("Frame")
+    sliderFrame.Size = UDim2.new(1, -10, 0, 50)
+    sliderFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+    sliderFrame.BorderSizePixel = 0
+    sliderFrame.Parent = page
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = sliderFrame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 20)
+    label.Position = UDim2.new(0, 12, 0, 6)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(240, 240, 240)
+    label.TextSize = 11
+    label.Font = Enum.Font.GothamBold
+    label.Text = title
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = sliderFrame
+    
+    local valLabel = Instance.new("TextLabel")
+    valLabel.Size = UDim2.new(0, 50, 0, 20)
+    valLabel.Position = UDim2.new(1, -60, 0, 6)
+    valLabel.BackgroundTransparency = 1
+    valLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    valLabel.TextSize = 11
+    valLabel.Font = Enum.Font.GothamBold
+    valLabel.Text = tostring(ConfigData.Sliders[id] or min)
+    valLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valLabel.Parent = sliderFrame
+    
+    local sliderBar = Instance.new("Frame")
+    sliderBar.Size = UDim2.new(1, -24, 0, 6)
+    sliderBar.Position = UDim2.new(0, 12, 0, 32)
+    sliderBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    sliderBar.BorderSizePixel = 0
+    sliderBar.Parent = sliderFrame
+    
+    local barCorner = Instance.new("UICorner")
+    barCorner.CornerRadius = UDim.new(1, 0)
+    barCorner.Parent = sliderBar
+    
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new((ConfigData.Sliders[id] or min) / max, 0, 1, 0)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(114, 9, 183)
+    sliderFill.BorderSizePixel = 0
+    sliderFill.Parent = sliderBar
+    
+    local fillCorner = Instance.new("UICorner")
+    fillCorner.CornerRadius = UDim.new(1, 0)
+    fillCorner.Parent = sliderFill
+    
+    local draggingSlider = false
+    local function UpdateSlider(input)
+        local pos = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
+        local val = math.floor(min + (max - min) * pos)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        valLabel.Text = tostring(val)
+        ConfigData.Sliders[id] = val
+        SaveConfig()
+        if callback then callback(val) end
+    end
+    
+    sliderBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = true
+            UpdateSlider(input)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            UpdateSlider(input)
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = false
+        end
+    end)
+end
 
-CreateSectionHeader(FarmTab, "Boss & Elite")
-CreateToggle(FarmTab, "AutoEliteHunter", "Auto Elite Hunter", function(val) print("Elite:", val) end)
-CreateToggle(FarmTab, "AutoRipIndra", "Auto Rip Indra", function(val) print("Indra:", val) end)
+-- POPULATE TABS WITH PRO FEATURES
+CreateSectionHeader(FarmTab, "Setting Farm")
+CreateSlider(FarmTab, "SpeedTween", "Speed Tween", 50, 500, function(val) print("Speed:", val) end)
+CreateSlider(FarmTab, "DistanceFarm", "Distance Farm", 10, 50, function(val) print("Distance:", val) end)
 
-CreateSectionHeader(SeaTab, "Sea Events")
-CreateToggle(SeaTab, "AutoTerrorShark", "Auto Terror Shark", function(val) print("Shark:", val) end)
+CreateToggle(FarmTab, "FastAttack", "Fast Attack & Fast Fruits", "Increases attack and fruit speed", function(val) print("Fast Attack:", val) end)
+CreateToggle(FarmTab, "BringMob", "Bring Mob", "Automatically gathers monsters around you", function(val) print("Bring Mob:", val) end)
+CreateToggle(FarmTab, "AutoV3", "Auto Active Race V3", "Automatically activates race V3 ability", function(val) print("Race V3:", val) end)
+CreateToggle(FarmTab, "AutoV4", "Auto Active Race V4", "Automatically activates transformation V4", function(val) print("Race V4:", val) end)
+
+CreateSectionHeader(SeaTab, "Sea Features")
+CreateToggle(SeaTab, "AutoTerrorShark", "Auto Terror Shark", "Automatically hunt terror sharks", function(val) print("Shark:", val) end)
 
 CreateSectionHeader(QuestsTab, "Legendary Swords")
-CreateToggle(QuestsTab, "AutoYama", "Auto Collect Yama", function(val) print("Yama:", val) end)
-CreateToggle(QuestsTab, "AutoTushita", "Auto Tushita Quest", function(val) print("Tushita:", val) end)
+CreateToggle(QuestsTab, "AutoYama", "Auto Collect Yama", "Automatically completes Yama quests", function(val) print("Yama:", val) end)
+CreateToggle(QuestsTab, "AutoTushita", "Auto Tushita Quest", "Automatically completes Tushita quests", function(val) print("Tushita:", val) end)
 
-print("[ThanhEz Hub]: Redz Exact UI Clone Loaded Successfully!")
+CreateSectionHeader(MiscTab, "Setting Misc")
+CreateToggle(MiscTab, "HopServer", "Hop Server After 30 Minutes", "Automatically hops server to find bosses", function(val) print("Hop Server:", val) end)
+
+print("[ThanhEz Hub]: Elite Pro UI Loaded Successfully!")
