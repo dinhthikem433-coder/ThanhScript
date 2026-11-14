@@ -497,3 +497,6 @@ local function CreateSlider(page, id, title, min, max, callback)
     end)
 end
 
+-- CreateToggle(MainTab, "Auto Farm Level", "Tự động chọn quest, gom quái và né đòn", function(state)
+--     AutoFarmModule.ToggleAutoFarm(state)
+-- end)
