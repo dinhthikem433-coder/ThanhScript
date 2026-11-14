@@ -497,6 +497,37 @@ local function CreateSlider(page, id, title, min, max, callback)
     end)
 end
 
--- CreateToggle(MainTab, "Auto Farm Level", "Tự động chọn quest, gom quái và né đòn", function(state)
---     AutoFarmModule.ToggleAutoFarm(state)
--- end)
+-- ==========================================================
+-- THANH EZ HUB : COMPACT UI TOGGLE (LAST 50 LINES OPTIMIZED)
+-- ==========================================================
+
+local CoreGui = game:GetService("CoreGui")
+if CoreGui:FindFirstChild("ThanhEzMainGui") then CoreGui.ThanhEzMainGui:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui", CoreGui)
+ScreenGui.Name = "ThanhEzMainGui"
+
+local ToggleButton = Instance.new("TextButton", ScreenGui)
+ToggleButton.Size = UDim2.new(0, 200, 0, 45)
+ToggleButton.Position = UDim2.new(0.1, 0, 0.1, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 14
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.Text = "Tự Động Cày Cấp: TẮT"
+
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 6)
+
+local IsFarmRunning = false
+ToggleButton.MouseButton1Click:Connect(function()
+    IsFarmRunning = not IsFarmRunning
+    if IsFarmRunning then
+        ToggleButton.Text = "Tự Động Cày Cấp: BẬT"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+        if AutoFarmModule then AutoFarmModule.ToggleAutoFarm(true) end
+    else
+        ToggleButton.Text = "Tự Động Cày Cấp: TẮT"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        if AutoFarmModule then AutoFarmModule.ToggleAutoFarm(false) end
+    end
+end)
