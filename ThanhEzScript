@@ -1,5 +1,5 @@
 -- ==========================================================
--- THANH EZ HUB : BLOX KID - REDZ COMPACT + FAST ATTACK EDITION
+-- THANH EZ HUB : BLOX KID - STABLE REDZ COMPACT EDITION
 -- ==========================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -272,7 +272,7 @@ local function CreateTab(name, order)
 
     local pageLayout = Instance.new("UIListLayout")
     pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    pageLayout.Padding = UDim.new(0, 4) -- Gọn gàng, sát nhau như Redz[span_1](start_span)[span_1](end_span)
+    pageLayout.Padding = UDim.new(0, 4)
     pageLayout.Parent = page
 
     btn.MouseButton1Click:Connect(function()
@@ -326,7 +326,7 @@ local function CreateButtonInPage(page, title, callback)
     end)
 end
 
--- 7. UI BUILDERS (Compact Style[span_2](start_span)[span_2](end_span))
+-- 7. UI BUILDERS
 local function CreateSectionHeader(page, text)
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -8, 0, 20)
@@ -464,7 +464,7 @@ local function CreateSlider(page, id, title, min, max, callback)
         local pos = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
         local val = math.floor(min + (max - min) * pos)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-        valLabel.Text = tostringval and tostring(val) or tostring(val)
+        valLabel.Text = tostring(val)
         ConfigData.Sliders[id] = val
         SaveConfig()
         if callback then callback(val) end
@@ -491,7 +491,7 @@ local function CreateSlider(page, id, title, min, max, callback)
 end
 
 -- ==========================================
--- 8. CORE GAME LOGIC: FAST ATTACK (Đánh siêu nhanh không delay)
+-- 8. CORE GAME LOGIC: FAST ATTACK
 -- ==========================================
 local FastAttackConnection
 local function ToggleFastAttack(state)
@@ -500,7 +500,6 @@ local function ToggleFastAttack(state)
             pcall(function()
                 local char = LocalPlayer.Character
                 if char and char:FindFirstChild("HumanoidRootPart") then
-                    -- Bypass attack cooldown & spam damage events
                     for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do
                         if v:IsA("Tool") and v:FindFirstChild("RemoteEvent") then
                             v.RemoteEvent:FireServer("Click")
@@ -515,41 +514,48 @@ local function ToggleFastAttack(state)
                 end
             end)
         end)
-        print("[ThanhEz Hub]: Fast Attack Enabled!")
     else
         if FastAttackConnection then
             FastAttackConnection:Disconnect()
             FastAttackConnection = nil
         end
-        print("[ThanhEz Hub]: Fast Attack Disabled!")
     end
 end
 
--- POPULATE HOME TAB (Setting Farm & Config)
+-- POPULATE HOME TAB
 CreateSectionHeader(HomeTab, "Setting Farm")
-CreateSlider(HomeTab, "SpeedTween", "Speed Tween", 50, 500, function(val) print("Speed:", val) end)
-CreateSlider(HomeTab, "DistanceFarm", "Distance Farm", 10, 50, function(val) print("Distance:", val) end)
+CreateSlider(HomeTab, "SpeedTween", "Speed Tween", 50, 500, function(val) end)
+CreateSlider(HomeTab, "DistanceFarm", "Distance Farm", 10, 50, function(val) end)
 
 CreateSectionHeader(HomeTab, "General Settings")
 CreateButtonInPage(HomeTab, "Save Config Manually", function()
     SaveConfig()
-    print("[ThanhEz Hub]: Config saved successfully!")
 end)
 
--- POPULATE MAIN TAB (Farm Chính & Fast Attack)
+-- POPULATE MAIN TAB
 CreateSectionHeader(MainTab, "Main Farm")
-CreateToggle(MainTab, "AutoFarmLevel", "Auto Farm Level", "Automatically farms level quests", function(val) print("Farm Level:", val) end)
+CreateToggle(MainTab, "AutoFarmLevel", "Auto Farm Level", "Automatically farms level quests", function(val) end)
 
 CreateSectionHeader(MainTab, "Combat & Damage")
 CreateToggle(MainTab, "FastAttack", "Fast Attack (No Delay)", "Increases attack speed to maximum instantly", function(val) 
     ToggleFastAttack(val) 
 end)
 
-CreateToggle(MainTab, "BringMob", "Bring Mob", "Automatically gathers monsters around you", function(val) print("Bring Mob:", val) end)
-CreateToggle(MainTab, "AutoV3", "Auto Active Race V3", "Automatically activates race V3 ability", function(val) print("Race V3:", val) end)
-CreateToggle(MainTab, "AutoV4", "Auto Active Race V4", "Automatically activates transformation V4", function(val) print("Race V4:", val) end)
+CreateToggle(MainTab, "BringMob", "Bring Mob", "Automatically gathers monsters around you", function(val) end)
+CreateToggle(MainTab, "AutoV3", "Auto Active Race V3", "Automatically activates race V3 ability", function(val) end)
+CreateToggle(MainTab, "AutoV4", "Auto Active Race V4", "Automatically activates transformation V4", function(val) end)
 
 -- POPULATE ITEMS TAB
 CreateSectionHeader(ItemsTab, "Legendary Swords & Items")
-CreateToggle(ItemsTab, "AutoYama", "Auto Collect Yama", "Automatically completes Yama quests", function(val) print("Yama:", val) end)
-CreateToggle(ItemsTab, "AutoTushita", "Auto T
+CreateToggle(ItemsTab, "AutoYama", "Auto Collect Yama", "Automatically completes Yama quests", function(val) end)
+CreateToggle(ItemsTab, "AutoTushita", "Auto Tushita Quest", "Automatically completes Tushita quests", function(val) end)
+
+-- POPULATE SEA TAB
+CreateSectionHeader(SeaTab, "Sea Events")
+CreateToggle(SeaTab, "AutoTerrorShark", "Auto Terror Shark", "Automatically hunt terror sharks", function(val) end)
+
+-- POPULATE MISC TAB
+CreateSectionHeader(MiscTab, "Setting Misc")
+CreateToggle(MiscTab, "HopServer", "Hop Server After 30 Minutes", "Automatically hops server to find bosses", function(val) end)
+
+print("[ThanhEz Hub : Blox Kid]: Loaded successfully!")
