@@ -1,0 +1,128 @@
+-- ==========================================================
+-- THANH EZ SCRIPT - COMPLETE UI ARCHITECTURE (NO LOGIC YET)
+-- ==========================================================
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Remove existing UI to prevent duplication
+if CoreGui:FindFirstChild("ThanhEzMasterUI") then
+    CoreGui.ThanhEzMasterUI:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ThanhEzMasterUI"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Main Container Window
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 520, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -260, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 10)
+MainCorner.Parent = MainFrame
+
+-- Top Bar (Header)
+local TopBar = Instance.new("Frame")
+TopBar.Name = "TopBar"
+TopBar.Size = UDim2.new(1, 0, 0, 40)
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
+
+local TopCorner = Instance.new("UICorner")
+TopCorner.CornerRadius = UDim.new(0, 10)
+TopCorner.Parent = TopBar
+
+-- Title Label with ThanhEz Branding
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Size = UDim2.new(0, 260, 1, 0)
+TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextSize = 16
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "ThanhEz Hub | Blox Fruits"
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Parent = TopBar
+
+-- Rainbow RGB Effect for Title
+task.spawn(function()
+    while task.wait() do
+        local hue = tick() % 5 / 5
+        TitleLabel.TextColor3 = Color3.fromHSV(hue, 1, 1)
+    end
+end)
+
+-- Sidebar (Tab Navigation - Left Side)
+local Sidebar = Instance.new("Frame")
+Sidebar.Name = "Sidebar"
+Sidebar.Size = UDim2.new(0, 140, 1, -40)
+Sidebar.Position = UDim2.new(0, 0, 0, 40)
+Sidebar.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = MainFrame
+
+-- Tab Button: Main Farm
+local MainTabButton = Instance.new("TextButton")
+MainTabButton.Name = "MainTabButton"
+MainTabButton.Size = UDim2.new(1, -20, 0, 35)
+MainTabButton.Position = UDim2.new(0, 10, 0, 15)
+MainTabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+MainTabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainTabButton.TextSize = 14
+MainTabButton.Font = Enum.Font.GothamSemibold
+MainTabButton.Text = "Main Farm"
+MainTabButton.Parent = Sidebar
+
+local MainTabCorner = Instance.new("UICorner")
+MainTabCorner.CornerRadius = UDim.new(0, 6)
+MainTabCorner.Parent = MainTabButton
+
+-- Content Panel (Right Side for Buttons/Toggles)
+local ContentPanel = Instance.new("Frame")
+ContentPanel.Name = "ContentPanel"
+ContentPanel.Size = UDim2.new(1, -155, 1, -55)
+ContentPanel.Position = UDim2.new(0, 150, 0, 50)
+ContentPanel.BackgroundTransparency = 1
+ContentPanel.Parent = MainFrame
+
+-- Template UI Toggle Button 1: Auto Farm Level (UI Only State)
+local FarmToggleButton = Instance.new("TextButton")
+FarmToggleButton.Name = "FarmToggleButton"
+FarmToggleButton.Size = UDim2.new(0, 220, 0, 40)
+FarmToggleButton.Position = UDim2.new(0, 10, 0, 10)
+FarmToggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+FarmToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+FarmToggleButton.TextSize = 13
+FarmToggleButton.Font = Enum.Font.GothamBold
+FarmToggleButton.Text = "Auto Farm Level: OFF"
+FarmToggleButton.Parent = ContentPanel
+
+local FarmToggleCorner = Instance.new("UICorner")
+FarmToggleCorner.CornerRadius = UDim.new(0, 6)
+FarmToggleCorner.Parent = FarmToggleButton
+
+-- UI Interaction State Only (No backend execution yet)
+local isFarmSelected = false
+FarmToggleButton.MouseButton1Click:Connect(function()
+    isFarmSelected = not isFarmSelected
+    if isFarmSelected then
+        FarmToggleButton.Text = "Auto Farm Level: ON"
+        FarmToggleButton.BackgroundColor3 = Color3.fromRGB(0, 160, 0)
+        print("[ThanhEz UI]: Toggled Auto Farm UI to ON")
+    else
+        FarmToggleButton.Text = "Auto Farm Level: OFF"
+        FarmToggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        print("[ThanhEz UI]: Toggled Auto Farm UI to OFF")
+    end
+end)
+
+print("[ThanhEz Hub]: Master UI architecture loaded successfully!")
