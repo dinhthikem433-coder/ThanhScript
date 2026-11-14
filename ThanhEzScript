@@ -1,5 +1,5 @@
 -- ==========================================================
--- THANH EZ HUB : BLOX KID - STABLE REDZ COMPACT EDITION
+-- THANH EZ HUB : BLOX KING - REDZ COMPACT EXACT EDITION
 -- ==========================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -10,7 +10,7 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 -- 1. CONFIG SYSTEM
-local ConfigFileName = "ThanhEzHub_RedzCompactConfig.json"
+local ConfigFileName = "ThanhEzHub_BloxKingConfig.json"
 local ConfigData = {
     Toggles = {},
     Sliders = {
@@ -38,12 +38,12 @@ end
 LoadConfig()
 
 -- Remove old GUI if exists
-if CoreGui:FindFirstChild("ThanhEzRedzCompactHub") then
-    CoreGui.ThanhEzRedzCompactHub:Destroy()
+if CoreGui:FindFirstChild("ThanhEzBloxKingHub") then
+    CoreGui.ThanhEzBloxKingHub:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ThanhEzRedzCompactHub"
+ScreenGui.Name = "ThanhEzBloxKingHub"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -145,14 +145,14 @@ TopCover.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 TopCover.BorderSizePixel = 0
 TopCover.Parent = TopBar
 
--- Rainbow Title ("ThanhEz Hub : Blox Kid")
+-- Rainbow Title ("ThanhEz Hub : Blox King")
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(0, 300, 1, 0)
 TitleLabel.Position = UDim2.new(0, 10, 0, 0)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.TextSize = 12
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "ThanhEz Hub : Blox Kid"
+TitleLabel.Text = "ThanhEz Hub : Blox King"
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 TitleLabel.Parent = TopBar
 
@@ -306,7 +306,7 @@ Pages["Home / Settings"].Visible = true
 TabButtons["Home / Settings"].BackgroundColor3 = Color3.fromRGB(38, 38, 38)
 TabButtons["Home / Settings"].TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- 6. HOME TAB (Setting Farm, Speed, Distance, Save Config)
+-- 6. HOME TAB (Setting Farm, Speed, Distance, Combat & Config)
 local function CreateButtonInPage(page, title, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -8, 0, 30)
@@ -326,7 +326,7 @@ local function CreateButtonInPage(page, title, callback)
     end)
 end
 
--- 7. UI BUILDERS
+-- 7. UI BUILDERS (Compact Style)
 local function CreateSectionHeader(page, text)
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -8, 0, 20)
@@ -384,10 +384,26 @@ local function CreateToggle(page, id, title, subtext, callback)
     switchCorner.Parent = switchBtn
     
     local currentState = ConfigData.Toggles[id] or false
-    if currentState then
-        table.insert(rainbowElements, switchBtn)
-    else
-        switchBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    local rainbowIndex = nil
+    
+    local function UpdateVisual(state)
+        if state then
+            if not rainbowIndex then
+                table.insert(rainbowElements, switchBtn)
+                rainbowIndex = #rainbowElements
+            end
+        else
+            if rainbowIndex then
+                table.remove(rainbowElements, rainbowIndex)
+                rainbowIndex = nil
+            end
+            switchBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        end
+    end
+    
+    UpdateVisual(currentState)
+    if currentState and callback then
+        task.spawn(function() callback(true) end)
     end
     
     switchBtn.MouseButton1Click:Connect(function()
@@ -395,11 +411,7 @@ local function CreateToggle(page, id, title, subtext, callback)
         ConfigData.Toggles[id] = currentState
         SaveConfig()
         
-        if currentState then
-            table.insert(rainbowElements, switchBtn)
-        else
-            switchBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        end
+        UpdateVisual(currentState)
         if callback then callback(currentState) end
     end)
 end
@@ -491,29 +503,30 @@ local function CreateSlider(page, id, title, min, max, callback)
 end
 
 -- ==========================================
--- 8. CORE GAME LOGIC: FAST ATTACK
+-- 8. CORE GAME LOGIC: FAST ATTACK (Tự động đánh quái không cần bấm chay)
 -- ==========================================
 local FastAttackConnection
 local function ToggleFastAttack(state)
     if state then
-        FastAttackConnection = RunService.Heartbeat:Connect(function()
-            pcall(function()
-                local char = LocalPlayer.Character
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-                        if v:IsA("Tool") and v:FindFirstChild("RemoteEvent") then
-                            v.RemoteEvent:FireServer("Click")
+        if not FastAttackConnection then
+            FastAttackConnection = RunService.Heartbeat:Connect(function()
+                pcall(function()
+                    local char = LocalPlayer.Character
+                    if char and char:FindFirstChild("HumanoidRootPart") then
+                        -- Tự động kích hoạt RemoteEvent tấn công quái xung quanh mà không cần click tay
+                        for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v:FindFirstChild("RemoteEvent") then
+                                v.RemoteEvent:FireServer("Click")
+                            end
+                        end
+                        local equippedTool = char:FindFirstChildOfClass("Tool")
+                        if equippedTool and equippedTool:FindFirstChild("RemoteEvent") then
+                            equippedTool.RemoteEvent:FireServer("Click")
                         end
                     end
-                    if char:FindFirstChildOfClass("Tool") then
-                        local tool = char:FindFirstChildOfClass("Tool")
-                        if tool:FindFirstChild("RemoteEvent") then
-                            tool.RemoteEvent:FireServer("Click")
-                        end
-                    end
-                end
+                end)
             end)
-        end)
+        end
     else
         if FastAttackConnection then
             FastAttackConnection:Disconnect()
@@ -522,40 +535,31 @@ local function ToggleFastAttack(state)
     end
 end
 
--- POPULATE HOME TAB
+-- POPULATE MAIN TAB (Chỉ để độc lập Auto Farm Level sạch sẽ đúng chuẩn Redz)
+CreateSectionHeader(MainTab, "Main Farm")
+CreateToggle(MainTab, "AutoFarmLevel", "Auto Farm Level", "Automatically farms level quests", function(val) 
+    print("Auto Farm Level:", val) 
+end)
+
+-- POPULATE HOME TAB (Chuyển toàn bộ setting farm, fast attack, bring mob sang đây)
 CreateSectionHeader(HomeTab, "Setting Farm")
 CreateSlider(HomeTab, "SpeedTween", "Speed Tween", 50, 500, function(val) end)
 CreateSlider(HomeTab, "DistanceFarm", "Distance Farm", 10, 50, function(val) end)
+
+CreateSectionHeader(HomeTab, "Combat & Auxiliary")
+CreateToggle(HomeTab, "FastAttack", "Fast Attack (No Delay)", "Automatically attacks enemies without clicking", function(val) 
+    ToggleFastAttack(val) 
+end)
+
+CreateToggle(HomeTab, "BringMob", "Bring Mob", "Automatically gathers monsters around you", function(val) end)
+CreateToggle(HomeTab, "AutoV3", "Auto Active Race V3", "Automatically activates race V3 ability", function(val) end)
+CreateToggle(HomeTab, "AutoV4", "Auto Active Race V4", "Automatically activates transformation V4", function(val) end)
 
 CreateSectionHeader(HomeTab, "General Settings")
 CreateButtonInPage(HomeTab, "Save Config Manually", function()
     SaveConfig()
 end)
 
--- POPULATE MAIN TAB
-CreateSectionHeader(MainTab, "Main Farm")
-CreateToggle(MainTab, "AutoFarmLevel", "Auto Farm Level", "Automatically farms level quests", function(val) end)
-
-CreateSectionHeader(MainTab, "Combat & Damage")
-CreateToggle(MainTab, "FastAttack", "Fast Attack (No Delay)", "Increases attack speed to maximum instantly", function(val) 
-    ToggleFastAttack(val) 
-end)
-
-CreateToggle(MainTab, "BringMob", "Bring Mob", "Automatically gathers monsters around you", function(val) end)
-CreateToggle(MainTab, "AutoV3", "Auto Active Race V3", "Automatically activates race V3 ability", function(val) end)
-CreateToggle(MainTab, "AutoV4", "Auto Active Race V4", "Automatically activates transformation V4", function(val) end)
-
 -- POPULATE ITEMS TAB
 CreateSectionHeader(ItemsTab, "Legendary Swords & Items")
-CreateToggle(ItemsTab, "AutoYama", "Auto Collect Yama", "Automatically completes Yama quests", function(val) end)
-CreateToggle(ItemsTab, "AutoTushita", "Auto Tushita Quest", "Automatically completes Tushita quests", function(val) end)
-
--- POPULATE SEA TAB
-CreateSectionHeader(SeaTab, "Sea Events")
-CreateToggle(SeaTab, "AutoTerrorShark", "Auto Terror Shark", "Automatically hunt terror sharks", function(val) end)
-
--- POPULATE MISC TAB
-CreateSectionHeader(MiscTab, "Setting Misc")
-CreateToggle(MiscTab, "HopServer", "Hop Server After 30 Minutes", "Automatically hops server to find bosses", function(val) end)
-
-print("[ThanhEz Hub : Blox Kid]: Loaded successfully!")
+CreateToggle(ItemsTab, "AutoYama", "Auto Collect Yama", "Automatically completes Yama q
