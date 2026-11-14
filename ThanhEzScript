@@ -1,45 +1,198 @@
 -- ==========================================================
--- THANH EZ HUB : FAST ATTACK MODULE (HOME / SETTINGS)
+-- THANH EZ HUB : REDZ STYLE + DRAGGABLE + RAINBOW EFFECT
 -- ==========================================================
 
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- Variable to store the fast attack connection loop
-local FastAttackConnection = nil
-
--- Function to handle ultra-fast auto attack (No manual clicking, smooth toggle on/off)
-local function ToggleFastAttack(state)
-    if state then
-        -- When turned ON: Connect to Heartbeat to spam attack packets continuously
-        if not FastAttackConnection then
-            FastAttackConnection = RunService.Heartbeat:Connect(function()
-                pcall(function()
-                    local character = LocalPlayer.Character
-                    if character and character:FindFirstChild("HumanoidRootPart") then
-                        -- Scan backpack tools and fire remote event
-                        for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
-                            if tool:IsA("Tool") and tool:FindFirstChild("RemoteEvent") then
-                                tool.RemoteEvent:FireServer("Click")
-                            end
-                        end
-                        -- Scan equipped tool and fire remote event
-                        local equippedTool = character:FindFirstChildOfClass("Tool")
-                        if equippedTool and equippedTool:FindFirstChild("RemoteEvent") then
-                            equippedTool.RemoteEvent:FireServer("Click")
-                        end
-                    end
-                end)
-            end)
-        end
-    else
-        -- When turned OFF: Disconnect completely and stop attacking immediately
-        if FastAttackConnection then
-            FastAttackConnection:Disconnect()
-            FastAttackConnection = nil
-        end
-    end
+-- Xóa UI cũ nếu có
+if CoreGui:FindFirstChild("ThanhEzRainbowHub") then
+    CoreGui.ThanhEzRainbowHub:Destroy()
 end
 
-return ToggleFastAttack
+-- Tạo ScreenGui chính
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ThanhEzRainbowHub"
+ScreenGui.Parent = CoreGui
+ScreenGui.ResetOnSpawn = false
+
+-- Nút thu gọn / mở menu hình tròn (Logo "TE")
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Size = UDim2.new(0, 45, 0, 45)
+ToggleBtn.Position = UDim2.new(0.02, 0, 0.25, 0)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 60, 60)
+ToggleBtn.TextSize = 16
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.Text = "TE"
+ToggleBtn.Parent = ScreenGui
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+
+-- Khung Hub chính
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 450, 0, 280)
+MainFrame.Position = UDim2.new(0.5, -225, 0.5, -140)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Parent = ScreenGui
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+-- ==========================================================
+-- TÍNH NĂNG KÉO THẢ MƯỢT MÀ TRÊN ĐIỆN THOẠI & PC
+-- ==========================================================
+local dragging, dragInput, dragStart, startPos
+
+TopBar = Instance.new("Frame") -- Khai báo TopBar
+TopBar.Size = UDim2.new(1, 0, 0, 35)
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 8)
+
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TopBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- Tiêu đề Hub
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, -20, 1, 0)
+TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 14
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "ThanhEz Hub | Blox Fruits"
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Parent = TopBar
+
+-- ==========================================================
+-- HIỆU ỨNG ĐỔI MÀU CẦU VÒNG (RAINBOW) CHO VIỀN HOẶC TIÊU ĐỀ
+-- ==========================================================
+local RainbowConnection
+RainbowConnection = RunService.RenderStepped:Connect(function()
+    local hue = tick() % 5 / 5
+    local rainbowColor = Color3.fromHSV(hue, 1, 1)
+    
+    -- Áp dụng màu cầu vồng cho chữ tiêu đề hoặc viền nút tròn
+    TitleLabel.TextColor3 = rainbowColor
+    ToggleBtn.TextColor3 = rainbowColor
+end)
+
+-- Khung chứa danh sách Tab bên trái
+local TabListContainer = Instance.new("ScrollingFrame")
+TabListContainer.Size = UDim2.new(0, 120, 1, -45)
+TabListContainer.Position = UDim2.new(0, 5, 0, 40)
+TabListContainer.BackgroundTransparency = 1
+TabListContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+TabListContainer.ScrollBarThickness = 2
+TabListContainer.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Parent = TabListContainer
+
+-- Khung chứa nội dung các Tab bên phải
+local ContainerHolder = Instance.new("Frame")
+ContainerHolder.Size = UDim2.new(1, -135, 1, -45)
+ContainerHolder.Position = UDim2.new(0, 130, 0, 40)
+ContainerHolder.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+ContainerHolder.BorderSizePixel = 0
+ContainerHolder.Parent = MainFrame
+Instance.new("UICorner", ContainerHolder).CornerRadius = UDim.new(0, 6)
+
+-- Quản lý Tab
+local Tabs = {}
+local CurrentTab = nil
+
+local function CreateTab(tabName)
+    local TabButton = Instance.new("TextButton")
+    TabButton.Size = UDim2.new(1, 0, 0, 32)
+    TabButton.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+    TabButton.TextColor3 = Color3.fromRGB(180, 180, 180)
+    TabButton.TextSize = 13
+    TabButton.Font = Enum.Font.GothamMedium
+    TabButton.Text = tabName
+    TabButton.Parent = TabListContainer
+    Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 6)
+
+    local TabContent = Instance.new("ScrollingFrame")
+    TabContent.Size = UDim2.new(1, -10, 1, -10)
+    TabContent.Position = UDim2.new(0, 5, 0, 5)
+    TabContent.BackgroundTransparency = 1
+    TabContent.Visible = false
+    TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+    TabContent.ScrollBarThickness = 3
+    TabContent.Parent = ContainerHolder
+
+    local ContentLayout = Instance.new("UIListLayout")
+    ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    ContentLayout.Padding = UDim.new(0, 8)
+    ContentLayout.Parent = TabContent
+
+    TabButton.MouseButton1Click:Connect(function()
+        for _, t in pairs(Tabs) do
+            t.Content.Visible = false
+            t.Button.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+            t.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
+        end
+        TabContent.Visible = true
+        TabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+
+    if not CurrentTab then
+        CurrentTab = tabName
+        TabContent.Visible = true
+        TabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+
+    table.insert(Tabs, {Name = tabName, Button = TabButton, Content = TabContent})
+    return TabContent
+end
+
+-- Tạo các Tab trống sẵn sàng
+CreateTab("Cày Cấp")
+CreateTab("Bảng Thống Kê")
+CreateTab("Dịch Chuyển")
+CreateTab("Tính Năng Khác")
+
+-- Nút ẩn/hiện toàn bộ Menu (Đóng/Mở mượt mà)
+local isOpen = true
+ToggleBtn.MouseButton1Click:Connect(function()
+    isOpen = not isOpen
+    MainFrame.Visible = isOpen
+end)
