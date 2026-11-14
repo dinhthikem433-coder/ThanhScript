@@ -1,57 +1,65 @@
 -- ==========================================================
--- THANH EZ HUB : REDZ STYLE + DRAGGABLE + RAINBOW EFFECT
+-- THANH EZ HUB : DELTA EXECUTOR OPTIMIZED VERSION
 -- ==========================================================
 
-local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- Xóa UI cũ nếu có
-if CoreGui:FindFirstChild("ThanhEzRainbowHub") then
-    CoreGui.ThanhEzRainbowHub:Destroy()
+-- Xóa UI cũ nếu đang bật
+if CoreGui:FindFirstChild("ThanhEzDeltaHub") then
+    CoreGui.ThanhEzDeltaHub:Destroy()
 end
 
 -- Tạo ScreenGui chính
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ThanhEzRainbowHub"
+ScreenGui.Name = "ThanhEzDeltaHub"
 ScreenGui.Parent = CoreGui
 ScreenGui.ResetOnSpawn = false
 
--- Nút thu gọn / mở menu hình tròn (Logo "TE")
+-- Nút tròn mở/đóng menu (Tối ưu riêng cho cảm ứng Delta)
 local ToggleBtn = Instance.new("TextButton")
-ToggleBtn.Size = UDim2.new(0, 45, 0, 45)
-ToggleBtn.Position = UDim2.new(0.02, 0, 0.25, 0)
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0.05, 0, 0.2, 0)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 ToggleBtn.TextColor3 = Color3.fromRGB(255, 60, 60)
-ToggleBtn.TextSize = 16
+ToggleBtn.TextSize = 18
 ToggleBtn.Font = Enum.Font.GothamBold
 ToggleBtn.Text = "TE"
 ToggleBtn.Parent = ScreenGui
-Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(1, 0)
+ToggleCorner.Parent = ToggleBtn
 
 -- Khung Hub chính
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 450, 0, 280)
-MainFrame.Position = UDim2.new(0.5, -225, 0.5, -140)
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+MainFrame.Size = UDim2.new(0, 460, 0, 290)
+MainFrame.Position = UDim2.new(0.5, -230, 0.5, -145)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Parent = ScreenGui
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
--- ==========================================================
--- TÍNH NĂNG KÉO THẢ MƯỢT MÀ TRÊN ĐIỆN THOẠI & PC
--- ==========================================================
-local dragging, dragInput, dragStart, startPos
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.Parent = MainFrame
 
-TopBar = Instance.new("Frame") -- Khai báo TopBar
+-- Thanh tiêu đề (TopBar)
+local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 35)
 TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 TopBar.BorderSizePixel = 0
 TopBar.Parent = MainFrame
-Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 8)
+
+local TopCorner = Instance.new("UICorner")
+TopCorner.CornerRadius = UDim.new(0, 8)
+TopCorner.Parent = TopBar
+
+-- Tính năng kéo thả mượt mà trên Delta (Touch & Mouse)
+local dragging, dragInput, dragStart, startPos
 
 TopBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -97,100 +105,101 @@ TitleLabel.Text = "ThanhEz Hub | Blox Fruits"
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 TitleLabel.Parent = TopBar
 
--- ==========================================================
--- HIỆU ỨNG ĐỔI MÀU CẦU VÒNG (RAINBOW) CHO VIỀN HOẶC TIÊU ĐỀ
--- ==========================================================
-local RainbowConnection
-RainbowConnection = RunService.RenderStepped:Connect(function()
+-- Hiệu ứng cầu vồng (Rainbow) chạy chữ tiêu đề và nút tròn
+RunService.RenderStepped:Connect(function()
     local hue = tick() % 5 / 5
     local rainbowColor = Color3.fromHSV(hue, 1, 1)
-    
-    -- Áp dụng màu cầu vồng cho chữ tiêu đề hoặc viền nút tròn
     TitleLabel.TextColor3 = rainbowColor
     ToggleBtn.TextColor3 = rainbowColor
 end)
 
 -- Khung chứa danh sách Tab bên trái
-local TabListContainer = Instance.new("ScrollingFrame")
-TabListContainer.Size = UDim2.new(0, 120, 1, -45)
-TabListContainer.Position = UDim2.new(0, 5, 0, 40)
-TabListContainer.BackgroundTransparency = 1
-TabListContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
-TabListContainer.ScrollBarThickness = 2
-TabListContainer.Parent = MainFrame
+local TabList = Instance.new("ScrollingFrame")
+TabList.Size = UDim2.new(0, 130, 1, -45)
+TabList.Position = UDim2.new(0, 5, 0, 40)
+TabList.BackgroundTransparency = 1
+TabList.CanvasSize = UDim2.new(0, 0, 0, 0)
+TabList.ScrollBarThickness = 2
+TabList.Parent = MainFrame
 
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.Parent = TabListContainer
+local TabListLayout = Instance.new("UIListLayout")
+TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+TabListLayout.Padding = UDim.new(0, 6)
+TabListLayout.Parent = TabList
 
--- Khung chứa nội dung các Tab bên phải
-local ContainerHolder = Instance.new("Frame")
-ContainerHolder.Size = UDim2.new(1, -135, 1, -45)
-ContainerHolder.Position = UDim2.new(0, 130, 0, 40)
-ContainerHolder.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
-ContainerHolder.BorderSizePixel = 0
-ContainerHolder.Parent = MainFrame
-Instance.new("UICorner", ContainerHolder).CornerRadius = UDim.new(0, 6)
+-- Khung nội dung Tab bên phải
+local ContentHolder = Instance.new("Frame")
+ContentHolder.Size = UDim2.new(1, -145, 1, -45)
+ContentHolder.Position = UDim2.new(0, 140, 0, 40)
+ContentHolder.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ContentHolder.BorderSizePixel = 0
+ContentHolder.Parent = MainFrame
 
--- Quản lý Tab
+local ContentCorner = Instance.new("UICorner")
+ContentCorner.CornerRadius = UDim.new(0, 6)
+ContentCorner.Parent = ContentHolder
+
+-- Hệ thống tạo Tab
 local Tabs = {}
-local CurrentTab = nil
+local FirstTab = true
 
-local function CreateTab(tabName)
-    local TabButton = Instance.new("TextButton")
-    TabButton.Size = UDim2.new(1, 0, 0, 32)
-    TabButton.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-    TabButton.TextColor3 = Color3.fromRGB(180, 180, 180)
-    TabButton.TextSize = 13
-    TabButton.Font = Enum.Font.GothamMedium
-    TabButton.Text = tabName
-    TabButton.Parent = TabListContainer
-    Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 6)
+local function CreateTab(name)
+    local TabBtn = Instance.new("TextButton")
+    TabBtn.Size = UDim2.new(1, 0, 0, 35)
+    TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    TabBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
+    TabBtn.TextSize = 13
+    TabBtn.Font = Enum.Font.GothamMedium
+    TabBtn.Text = name
+    TabBtn.Parent = TabList
 
-    local TabContent = Instance.new("ScrollingFrame")
-    TabContent.Size = UDim2.new(1, -10, 1, -10)
-    TabContent.Position = UDim2.new(0, 5, 0, 5)
-    TabContent.BackgroundTransparency = 1
-    TabContent.Visible = false
-    TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
-    TabContent.ScrollBarThickness = 3
-    TabContent.Parent = ContainerHolder
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 6)
+    BtnCorner.Parent = TabBtn
 
-    local ContentLayout = Instance.new("UIListLayout")
-    ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    ContentLayout.Padding = UDim.new(0, 8)
-    ContentLayout.Parent = TabContent
+    local TabPage = Instance.new("ScrollingFrame")
+    TabPage.Size = UDim2.new(1, -10, 1, -10)
+    TabPage.Position = UDim2.new(0, 5, 0, 5)
+    TabPage.BackgroundTransparency = 1
+    TabPage.Visible = false
+    TabPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+    TabPage.ScrollBarThickness = 3
+    TabPage.Parent = ContentHolder
 
-    TabButton.MouseButton1Click:Connect(function()
+    local PageLayout = Instance.new("UIListLayout")
+    PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    PageLayout.Padding = UDim.new(0, 8)
+    PageLayout.Parent = TabPage
+
+    TabBtn.MouseButton1Click:Connect(function()
         for _, t in pairs(Tabs) do
-            t.Content.Visible = false
-            t.Button.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-            t.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
+            t.Page.Visible = false
+            t.Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            t.Btn.TextColor3 = Color3.fromRGB(170, 170, 170)
         end
-        TabContent.Visible = true
-        TabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabPage.Visible = true
+        TabBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     end)
 
-    if not CurrentTab then
-        CurrentTab = tabName
-        TabContent.Visible = true
-        TabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    if FirstTab then
+        FirstTab = false
+        TabPage.Visible = true
+        TabBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     end
 
-    table.insert(Tabs, {Name = tabName, Button = TabButton, Content = TabContent})
-    return TabContent
+    table.insert(Tabs, {Btn = TabBtn, Page = TabPage})
+    return TabPage
 end
 
--- Tạo các Tab trống sẵn sàng
+-- Tạo sẵn các Tab chuẩn Redz style cho Delta
 CreateTab("Cày Cấp")
 CreateTab("Bảng Thống Kê")
 CreateTab("Dịch Chuyển")
 CreateTab("Tính Năng Khác")
 
--- Nút ẩn/hiện toàn bộ Menu (Đóng/Mở mượt mà)
+-- Nút đóng/mở giao diện bằng nút tròn "TE"
 local isOpen = true
 ToggleBtn.MouseButton1Click:Connect(function()
     isOpen = not isOpen
