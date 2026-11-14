@@ -1,128 +1,314 @@
 -- ==========================================================
--- THANH EZ SCRIPT - COMPLETE UI ARCHITECTURE (NO LOGIC YET)
+-- THANH EZ HUB - ULTIMATE REDZ STYLE CLONE + CONFIG SYSTEM
 -- ==========================================================
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
--- Remove existing UI to prevent duplication
-if CoreGui:FindFirstChild("ThanhEzMasterUI") then
-    CoreGui.ThanhEzMasterUI:Destroy()
+-- 1. CONFIG SAVE / LOAD SYSTEM
+local ConfigFileName = "ThanhEzHub_Config.json"
+local ConfigData = {
+    Toggles = {}
+}
+
+local function SaveConfig()
+    local success, err = pcall(function()
+        if writefile then
+            writefile(ConfigFileName, HttpService:JSONEncode(ConfigData))
+        end
+    end)
+    if not success then
+        warn("[ThanhEz Hub]: Failed to save config: " .. tostring(err))
+    end
+end
+
+local function LoadConfig()
+    local success, err = pcall(function()
+        if readfile and isfile and isfile(ConfigFileName) then
+            ConfigData = HttpService:JSONDecode(readfile(ConfigFileName))
+        end
+    end)
+    if not success then
+        warn("[ThanhEz Hub]: Failed to load config: " .. tostring(err))
+    end
+end
+
+LoadConfig()
+
+-- Remove old GUI if exists
+if CoreGui:FindFirstChild("ThanhEzMasterHub") then
+    CoreGui.ThanhEzMasterHub:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ThanhEzMasterUI"
+ScreenGui.Name = "ThanhEzMasterHub"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Main Container Window
+-- 2. INTRO WELCOME NOTIFICATION ("ThanhEz Hub!" for a few seconds)
+local IntroFrame = Instance.new("Frame")
+IntroFrame.Size = UDim2.new(0, 300, 0, 70)
+IntroFrame.Position = UDim2.new(0.5, -150, 0.2, 0)
+IntroFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+IntroFrame.BorderSizePixel = 0
+IntroFrame.Parent = ScreenGui
+
+local IntroCorner = Instance.new("UICorner")
+IntroCorner.CornerRadius = UDim.new(0, 8)
+IntroCorner.Parent = IntroFrame
+
+local IntroText = Instance.new("TextLabel")
+IntroText.Size = UDim2.new(1, 0, 1, 0)
+IntroText.BackgroundTransparency = 1
+IntroText.Font = Enum.Font.GothamBold
+IntroText.TextSize = 18
+IntroText.Text = "ThanhEz Hub!"
+IntroText.TextColor3 = Color3.fromRGB(255, 255, 255)
+IntroText.Parent = IntroFrame
+
+-- Intro Rainbow RGB effect & auto destroy after 3 seconds
+task.spawn(function()
+    local startTime = tick()
+    while tick() - startTime < 3 do
+        local hue = tick() % 4 / 4
+        IntroText.TextColor3 = Color3.fromHSV(hue, 1, 1)
+        task.wait()
+    end
+    IntroFrame:Destroy()
+end)
+
+-- 3. FLOATING TOGGLE ICON (Mobile Quick Open/Close Button)
+local ToggleIconButton = Instance.new("TextButton")
+ToggleIconButton.Size = UDim2.new(0, 45, 0, 45)
+ToggleIconButton.Position = UDim2.new(0, 30, 0, 200)
+ToggleIconButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleIconButton.BorderSizePixel = 0
+ToggleIconButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleIconButton.TextSize = 12
+ToggleIconButton.Font = Enum.Font.GothamBold
+ToggleIconButton.Text = "TE"
+ToggleIconButton.Parent = ScreenGui
+
+local IconCorner = Instance.new("UICorner")
+IconCorner.CornerRadius = UDim.new(0, 8)
+IconCorner.Parent = ToggleIconButton
+
+-- 4. MAIN WINDOW (Redz Hub Style Layout)
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 520, 0, 320)
-MainFrame.Position = UDim2.new(0.5, -260, 0.5, -160)
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+MainFrame.Size = UDim2.new(0, 540, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -270, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 10)
+MainCorner.CornerRadius = UDim.new(0, 6)
 MainCorner.Parent = MainFrame
 
--- Top Bar (Header)
+-- Top Bar (Header & Drag Area)
 local TopBar = Instance.new("Frame")
-TopBar.Name = "TopBar"
-TopBar.Size = UDim2.new(1, 0, 0, 40)
-TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TopBar.Size = UDim2.new(1, 0, 0, 35)
+TopBar.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 TopBar.BorderSizePixel = 0
 TopBar.Parent = MainFrame
 
 local TopCorner = Instance.new("UICorner")
-TopCorner.CornerRadius = UDim.new(0, 10)
+TopCorner.CornerRadius = UDim.new(0, 6)
 TopCorner.Parent = TopBar
 
--- Title Label with ThanhEz Branding
+local TopCover = Instance.new("Frame")
+TopCover.Size = UDim2.new(1, 0, 0, 8)
+TopCover.Position = UDim2.new(0, 0, 1, -8)
+TopCover.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+TopCover.BorderSizePixel = 0
+TopCover.Parent = TopBar
+
+-- Rainbow Title for Main Window
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Name = "TitleLabel"
-TitleLabel.Size = UDim2.new(0, 260, 1, 0)
-TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+TitleLabel.Size = UDim2.new(0, 300, 1, 0)
+TitleLabel.Position = UDim2.new(0, 12, 0, 0)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.TextSize = 16
+TitleLabel.TextSize = 14
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "ThanhEz Hub | Blox Fruits"
+TitleLabel.Text = "ThanhEz Hub : Blox Fruits"
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 TitleLabel.Parent = TopBar
 
--- Rainbow RGB Effect for Title
 task.spawn(function()
     while task.wait() do
-        local hue = tick() % 5 / 5
+        local hue = tick() % 4 / 4
         TitleLabel.TextColor3 = Color3.fromHSV(hue, 1, 1)
     end
 end)
 
--- Sidebar (Tab Navigation - Left Side)
-local Sidebar = Instance.new("Frame")
-Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 140, 1, -40)
-Sidebar.Position = UDim2.new(0, 0, 0, 40)
-Sidebar.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
-Sidebar.BorderSizePixel = 0
-Sidebar.Parent = MainFrame
+-- Close Button [X]
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 28, 0, 28)
+CloseButton.Position = UDim2.new(1, -32, 0, 4)
+CloseButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 12
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "X"
+CloseButton.Parent = TopBar
 
--- Tab Button: Main Farm
-local MainTabButton = Instance.new("TextButton")
-MainTabButton.Name = "MainTabButton"
-MainTabButton.Size = UDim2.new(1, -20, 0, 35)
-MainTabButton.Position = UDim2.new(0, 10, 0, 15)
-MainTabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-MainTabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MainTabButton.TextSize = 14
-MainTabButton.Font = Enum.Font.GothamSemibold
-MainTabButton.Text = "Main Farm"
-MainTabButton.Parent = Sidebar
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 5)
+CloseCorner.Parent = CloseButton
 
-local MainTabCorner = Instance.new("UICorner")
-MainTabCorner.CornerRadius = UDim.new(0, 6)
-MainTabCorner.Parent = MainTabButton
+-- Toggle Menu Visibility Logic
+local isVisible = true
+local function ToggleMenu()
+    isVisible = not isVisible
+    MainFrame.Visible = isVisible
+end
 
--- Content Panel (Right Side for Buttons/Toggles)
-local ContentPanel = Instance.new("Frame")
-ContentPanel.Name = "ContentPanel"
-ContentPanel.Size = UDim2.new(1, -155, 1, -55)
-ContentPanel.Position = UDim2.new(0, 150, 0, 50)
-ContentPanel.BackgroundTransparency = 1
-ContentPanel.Parent = MainFrame
+CloseButton.MouseButton1Click:Connect(ToggleMenu)
+ToggleIconButton.MouseButton1Click:Connect(ToggleMenu)
 
--- Template UI Toggle Button 1: Auto Farm Level (UI Only State)
-local FarmToggleButton = Instance.new("TextButton")
-FarmToggleButton.Name = "FarmToggleButton"
-FarmToggleButton.Size = UDim2.new(0, 220, 0, 40)
-FarmToggleButton.Position = UDim2.new(0, 10, 0, 10)
-FarmToggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-FarmToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-FarmToggleButton.TextSize = 13
-FarmToggleButton.Font = Enum.Font.GothamBold
-FarmToggleButton.Text = "Auto Farm Level: OFF"
-FarmToggleButton.Parent = ContentPanel
+-- Draggable Script for Mobile & PC
+local dragging, dragInput, dragStart, startPos
 
-local FarmToggleCorner = Instance.new("UICorner")
-FarmToggleCorner.CornerRadius = UDim.new(0, 6)
-FarmToggleCorner.Parent = FarmToggleButton
-
--- UI Interaction State Only (No backend execution yet)
-local isFarmSelected = false
-FarmToggleButton.MouseButton1Click:Connect(function()
-    isFarmSelected = not isFarmSelected
-    if isFarmSelected then
-        FarmToggleButton.Text = "Auto Farm Level: ON"
-        FarmToggleButton.BackgroundColor3 = Color3.fromRGB(0, 160, 0)
-        print("[ThanhEz UI]: Toggled Auto Farm UI to ON")
-    else
-        FarmToggleButton.Text = "Auto Farm Level: OFF"
-        FarmToggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-        print("[ThanhEz UI]: Toggled Auto Farm UI to OFF")
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
     end
 end)
 
-print("[ThanhEz Hub]: Master UI architecture loaded successfully!")
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+TopBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+-- 5. SIDEBAR (Tabs Menu - Left Side)
+local Sidebar = Instance.new("ScrollingFrame")
+Sidebar.Size = UDim2.new(0, 140, 1, -35)
+Sidebar.Position = UDim2.new(0, 0, 0, 35)
+Sidebar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+Sidebar.BorderSizePixel = 0
+Sidebar.ScrollBarThickness = 2
+Sidebar.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 4)
+UIListLayout.Parent = Sidebar
+
+local function CreateTabButton(name, order)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -12, 0, 30)
+    btn.Position = UDim2.new(0, 6, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.TextSize = 12
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Text = "  " .. name
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.LayoutOrder = order
+    btn.Parent = Sidebar
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 5)
+    corner.Parent = btn
+    return btn
+end
+
+CreateTabButton("Home / Main", 1)
+CreateTabButton("Farm", 2)
+CreateTabButton("Sea", 3)
+CreateTabButton("Quests / Items", 4)
+CreateTabButton("Stats", 5)
+CreateTabButton("Teleport", 6)
+CreateTabButton("Visual", 7)
+CreateTabButton("Shop", 8)
+CreateTabButton("Misc", 9)
+
+-- 6. CONTENT PANEL & AUTO-SAVE TOGGLE BUILDER
+local Container = Instance.new("ScrollingFrame")
+Container.Size = UDim2.new(1, -150, 1, -45)
+Container.Position = UDim2.new(0, 145, 0, 40)
+Container.BackgroundTransparency = 1
+Container.BorderSizePixel = 0
+Container.ScrollBarThickness = 3
+Container.Parent = MainFrame
+
+local ContainerLayout = Instance.new("UIListLayout")
+ContainerLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ContainerLayout.Padding = UDim.new(0, 8)
+ContainerLayout.Parent = Container
+
+local function CreateToggle(id, title, callback)
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Size = UDim2.new(1, -10, 0, 38)
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+    toggleFrame.BorderSizePixel = 0
+    toggleFrame.Parent = Container
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = toggleFrame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -60, 1, 0)
+    label.Position = UDim2.new(0, 12, 0, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(240, 240, 240)
+    label.TextSize = 12
+    label.Font = Enum.Font.GothamBold
+    label.Text = title
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = toggleFrame
+    
+    local switchBtn = Instance.new("TextButton")
+    switchBtn.Size = UDim2.new(0, 36, 0, 20)
+    switchBtn.Position = UDim2.new(1, -44, 0.5, -10)
+    switchBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    switchBtn.Text = ""
+    switchBtn.Parent = toggleFrame
+    
+    local switchCorner = Instance.new("UICorner")
+    switchCorner.CornerRadius = UDim.new(1, 0)
+    switchCorner.Parent = switchBtn
+    
+    -- Load saved state if exists
+    local currentState = ConfigData.Toggles[id] or false
+    if currentState then
+        switchBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    else
+        switchBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end
+    
+    switchBtn.MouseButton1Click:Connect(function()
+        currentState = not currentState
+        ConfigData.Toggles[id] = currentState
+        SaveConfig() -- Auto Save Config instantly
+        
+        if currentState then
+            switchBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+        else
+            switchBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        end
+        if callback then callback(currentState) end
+    end)
+end
+
+-- Adding Sample Features with Auto-Save Config Support
+CreateToggle("AutoFarmLevel", "Auto Farm Level", function(val) print("Auto Farm:", val) end)
+CreateToggle("AutoEliteHunter", "Auto Elite Hunter", function(val) print("Elite:", val) end)
+CreateToggle("AutoRipIndra", "Auto Rip Indra", function(val) print("Indra:", val) end)
+CreateToggle("AutoTushitaYama", "Auto Tushita / Yama", function(val) print("Sword quest:", val) end)
+
+print("[ThanhEz Hub]: Successfully Loaded with Config System!")
